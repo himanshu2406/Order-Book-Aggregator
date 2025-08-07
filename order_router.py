@@ -117,7 +117,7 @@ def main():
 
     if input_side == 'buy' or input_side == 'sell':
         btc_amt , total_cost = walk_book(input_qty, agg_bids, agg_asks, side=input_side)
-        print(f'To {input_side} {btc_amt} BTC : {total_cost:.2f}')
+        print(f'To {input_side} {btc_amt} BTC : ${total_cost:.2f}')
     else:
         btc_bought , buy_cost = walk_book(input_qty, agg_bids, agg_asks, side='buy')
         btc_sold , sell_cost = walk_book(input_qty, agg_bids, agg_asks, side='sell')
