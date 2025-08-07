@@ -2,6 +2,7 @@ import json
 import requests
 import time
 from functools import wraps
+import argparse
 
 RATE_LIMIT_DICT = {}
 
@@ -88,26 +89,41 @@ def walk_book(total_amount, bids, asks, side='buy'):
 
         transaction = min(quantity, total_amount - amount_filled)
         amount_filled += transaction
-        print(f'[{side}ing] {transaction} / {total_amount} at {price}')
+        # print(f'[{side}ing] {transaction} / {total_amount} at {price}') #Verbose tx logging
         total_cost += price * transaction
-        
+
         if amount_filled == total_amount:
             break
     
     average_price = total_cost / amount_filled
     return amount_filled, average_price
 
-gemini_bids, gemini_asks = get_gemini_ob()
-cb_bids, cb_asks = get_coinbase_ob()
 
-agg_bids = gemini_bids + cb_bids
-agg_asks = gemini_asks + cb_asks
-agg_bids.sort(key= lambda x : x[0], reverse=True)
-agg_asks.sort(key= lambda x : x[0])
+def main():
+    arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument('--qty', required=True, type=float, default=10.0)
+    arg_parser.add_argument('--side', required=False, type=str, default='both')
 
-btc_amount = 100
-btc_bought , btc_bought_price = walk_book(btc_amount, agg_bids, agg_asks, side='buy')
-btc_sold , btc_sold_price = walk_book(btc_amount, agg_bids, agg_asks, side='sell')
+    args = arg_parser.parse_args()
+    input_qty = args.qty
+    input_side = args.side
 
-print(btc_bought, btc_bought_price)
-print(btc_sold , btc_sold_price )
+    gemini_bids, gemini_asks = get_gemini_ob()
+    cb_bids, cb_asks = get_coinbase_ob()
+
+    agg_bids = gemini_bids + cb_bids
+    agg_asks = gemini_asks + cb_asks
+    agg_bids.sort(key= lambda x : x[0], reverse=True)
+    agg_asks.sort(key= lambda x : x[0])
+
+    if input_side == 'buy' or input_side == 'sell':
+        btc_amt , btc_tx_price = walk_book(input_qty, agg_bids, agg_asks, side=input_side)
+        print(f'Btc {input_side} amount : {btc_amt} , average fill price : {btc_tx_price}')
+    else:
+        btc_bought , btc_bought_price = walk_book(input_qty, agg_bids, agg_asks, side='buy')
+        btc_sold , btc_sold_price = walk_book(input_qty, agg_bids, agg_asks, side='sell')
+        print(f'Btc buy amount : {btc_bought} , average fill price : {btc_bought_price}')
+        print(f'Btc sell amount : {btc_sold} , average fill price : {btc_sold_price}')
+
+if __name__ == '__main__':
+    main()
