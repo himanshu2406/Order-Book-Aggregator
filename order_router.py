@@ -21,7 +21,7 @@ def rate_limit_handler(max_retries = 6, sleep_time = 2, backoff = 2):
                     attempts += 1
                     if attempts > max_retries:
                         raise
-                    print(f'[Rate Limited] sleeping for : {sleep_interval} , attempt : {attempts} of {max_retries}')
+                    print(f'[Rate Limited] sleeping for : {sleep_interval} s , attempt : {attempts} of {max_retries}')
                     time.sleep(sleep_interval)
                     sleep_interval = sleep_interval * backoff
         return wrapper
@@ -62,8 +62,6 @@ def get_gemini_ob():
     asks = resp_payload.get('asks')
     parsed_bids = [[float(bid.get('price')), float(bid.get('amount'))] for bid in bids]
     parsed_asks = [[float(ask.get('price')), float(ask.get('amount'))] for ask in asks]
-    parsed_bids.sort(key= lambda x: x[0], reverse=True)
-    parsed_asks.sort(key= lambda x: x[0])
     return parsed_bids, parsed_asks
 
 @rate_limit_handler(max_retries=3, sleep_time=2, backoff=2)
@@ -75,11 +73,41 @@ def get_coinbase_ob():
     asks = resp_payload.get('asks')
     parsed_bids = [[float(bid[0]), float(bid[1])] for bid in bids]
     parsed_asks = [[float(ask[0]), float(ask[1])] for ask in asks]
-    parsed_bids.sort(key= lambda x: x[0], reverse=True)
-    parsed_asks.sort(key= lambda x: x[0])
     return parsed_bids, parsed_asks
 
+def walk_book(total_amount, bids, asks, side='buy'):
 
-for i in range(5):
-    print(get_gemini_ob())
-print(get_coinbase_ob())
+    amount_filled=0.0
+    total_cost = 0.0
+    if side == 'buy':
+        book = bids
+    else:
+        book = asks
+
+    for price, quantity in book:
+
+        transaction = min(quantity, total_amount - amount_filled)
+        amount_filled += transaction
+        print(f'[{side}ing] {transaction} / {total_amount} at {price}')
+        total_cost += price * transaction
+        
+        if amount_filled == total_amount:
+            break
+    
+    average_price = total_cost / amount_filled
+    return amount_filled, average_price
+
+gemini_bids, gemini_asks = get_gemini_ob()
+cb_bids, cb_asks = get_coinbase_ob()
+
+agg_bids = gemini_bids + cb_bids
+agg_asks = gemini_asks + cb_asks
+agg_bids.sort(key= lambda x : x[0], reverse=True)
+agg_asks.sort(key= lambda x : x[0])
+
+btc_amount = 100
+btc_bought , btc_bought_price = walk_book(btc_amount, agg_bids, agg_asks, side='buy')
+btc_sold , btc_sold_price = walk_book(btc_amount, agg_bids, agg_asks, side='sell')
+
+print(btc_bought, btc_bought_price)
+print(btc_sold , btc_sold_price )
