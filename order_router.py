@@ -118,12 +118,12 @@ def main():
 
     if input_side == 'buy' or input_side == 'sell':
         btc_amt , btc_tx_price = walk_book(input_qty, agg_bids, agg_asks, side=input_side)
-        print(f'Btc {input_side} amount : {btc_amt} , average fill price : {btc_tx_price}')
+        print(f'To {input_side} {btc_amt} BTC : {btc_tx_price:.2f}')
     else:
         btc_bought , btc_bought_price = walk_book(input_qty, agg_bids, agg_asks, side='buy')
         btc_sold , btc_sold_price = walk_book(input_qty, agg_bids, agg_asks, side='sell')
-        print(f'Btc buy amount : {btc_bought} , average fill price : {btc_bought_price}')
-        print(f'Btc sell amount : {btc_sold} , average fill price : {btc_sold_price}')
+        print(f'To buy {btc_bought} BTC : {btc_bought_price:.2f}')
+        print(f'To sell {btc_sold} BTC : {btc_sold_price:.2f}')
 
 if __name__ == '__main__':
     main()
