@@ -95,8 +95,7 @@ def walk_book(total_amount, bids, asks, side='buy'):
         if amount_filled == total_amount:
             break
     
-    average_price = total_cost / amount_filled
-    return amount_filled, average_price
+    return amount_filled, total_cost
 
 
 def main():
@@ -117,13 +116,13 @@ def main():
     agg_asks.sort(key= lambda x : x[0])
 
     if input_side == 'buy' or input_side == 'sell':
-        btc_amt , btc_tx_price = walk_book(input_qty, agg_bids, agg_asks, side=input_side)
-        print(f'To {input_side} {btc_amt} BTC : {btc_tx_price:.2f}')
+        btc_amt , total_cost = walk_book(input_qty, agg_bids, agg_asks, side=input_side)
+        print(f'To {input_side} {btc_amt} BTC : {total_cost:.2f}')
     else:
-        btc_bought , btc_bought_price = walk_book(input_qty, agg_bids, agg_asks, side='buy')
-        btc_sold , btc_sold_price = walk_book(input_qty, agg_bids, agg_asks, side='sell')
-        print(f'To buy {btc_bought} BTC : {btc_bought_price:.2f}')
-        print(f'To sell {btc_sold} BTC : {btc_sold_price:.2f}')
+        btc_bought , buy_cost = walk_book(input_qty, agg_bids, agg_asks, side='buy')
+        btc_sold , sell_cost = walk_book(input_qty, agg_bids, agg_asks, side='sell')
+        print(f'To buy {btc_bought} BTC : ${buy_cost:.2f}')
+        print(f'To sell {btc_sold} BTC : ${sell_cost:.2f}')
 
 if __name__ == '__main__':
     main()
