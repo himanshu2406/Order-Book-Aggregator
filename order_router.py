@@ -81,9 +81,9 @@ def walk_book(total_amount, bids, asks, side='buy'):
     amount_filled=0.0
     total_cost = 0.0
     if side == 'buy':
-        book = bids
-    else:
         book = asks
+    else:
+        book = bids
 
     for price, quantity in book:
 
