@@ -100,7 +100,7 @@ def walk_book(total_amount, bids, asks, side='buy'):
 
 def main():
     arg_parser = argparse.ArgumentParser()
-    arg_parser.add_argument('--qty', required=True, type=float, default=10.0)
+    arg_parser.add_argument('--qty', required=False, type=float, default=10.0)
     arg_parser.add_argument('--side', required=False, type=str, default='both')
 
     args = arg_parser.parse_args()
@@ -121,8 +121,8 @@ def main():
     else:
         btc_bought , buy_cost = walk_book(input_qty, agg_bids, agg_asks, side='buy')
         btc_sold , sell_cost = walk_book(input_qty, agg_bids, agg_asks, side='sell')
-        print(f'To buy {btc_bought} BTC : ${buy_cost:.2f}')
-        print(f'To sell {btc_sold} BTC : ${sell_cost:.2f}')
+        print(f'To buy {btc_bought} BTC : ${buy_cost:,.2f}')
+        print(f'To sell {btc_sold} BTC : ${sell_cost:,.2f}')
 
 if __name__ == '__main__':
     main()
